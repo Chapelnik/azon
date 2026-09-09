@@ -1,9 +1,35 @@
 ```
-# Container/distribution files
-Containerfile
-Dockerfile
-*.dockerignore
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
 
-# Documentation
-README_PODMAN.md
+# Logs
+logs/
+*.log
+
+# Cache
+.cache/
+*.cache
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Dependencies
+venv/
+.venv/
+.env/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
 ```
