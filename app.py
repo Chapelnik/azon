@@ -115,6 +115,7 @@ HTML_TEMPLATE = '''
     <title>Карта концертов группы АЗОН</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -122,67 +123,108 @@ HTML_TEMPLATE = '''
             box-sizing: border-box;
         }
         body {
-            font-family: Arial, sans-serif;
-            background: #1a1a2e;
-            color: #eee;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
         }
         header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            padding: 24px 20px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.25);
         }
         header h1 {
-            font-size: 2em;
-            margin-bottom: 10px;
+            font-size: 1.75em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
         }
         header p {
-            opacity: 0.9;
+            opacity: 0.95;
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
         }
         #map-container {
             display: flex;
-            height: calc(100vh - 120px);
+            height: calc(100vh - 100px);
+            gap: 0;
         }
         #map {
             flex: 1;
             height: 100%;
+            background: #e8ecf1;
         }
         #sidebar {
-            width: 350px;
-            background: #16213e;
+            width: 380px;
+            background: #ffffff;
             overflow-y: auto;
-            border-left: 2px solid #667eea;
+            border-left: 1px solid #e2e8f0;
+            box-shadow: -4px 0 15px rgba(0, 0, 0, 0.04);
+        }
+        #sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        #sidebar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        #sidebar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        #sidebar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
         .concert-item {
-            padding: 15px;
-            border-bottom: 1px solid #2a2a4a;
+            padding: 18px 20px;
+            border-bottom: 1px solid #f1f5f9;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.2s ease;
+            background: #ffffff;
         }
         .concert-item:hover {
-            background: #1f3460;
+            background: #f8fafc;
+            border-left: 3px solid #667eea;
+            padding-left: 17px;
         }
         .concert-date {
             color: #667eea;
-            font-weight: bold;
-            font-size: 1.1em;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
         .concert-city {
-            margin-top: 5px;
-            font-size: 1.2em;
+            font-size: 1.15em;
+            font-weight: 500;
+            color: #1a202c;
         }
         .loading {
             text-align: center;
-            padding: 50px;
-            color: #888;
+            padding: 60px 20px;
+            color: #718096;
+            font-size: 0.95em;
         }
         .marker-popup {
-            min-width: 150px;
+            min-width: 160px;
+        }
+        .marker-popup strong {
+            display: block;
+            margin-bottom: 10px;
+            color: #2d3748;
+            font-size: 1.1em;
         }
         .marker-popup .popup-date {
             color: #667eea;
-            font-weight: bold;
-            font-size: 1.1em;
+            font-weight: 600;
+            font-size: 0.95em;
+            padding: 4px 0;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        .marker-popup .popup-date:last-child {
+            border-bottom: none;
         }
         @media (max-width: 768px) {
             #map-container {
@@ -190,9 +232,12 @@ HTML_TEMPLATE = '''
             }
             #sidebar {
                 width: 100%;
-                height: 200px;
+                height: 220px;
                 border-left: none;
-                border-top: 2px solid #667eea;
+                border-top: 1px solid #e2e8f0;
+            }
+            header h1 {
+                font-size: 1.4em;
             }
         }
     </style>
@@ -214,8 +259,8 @@ HTML_TEMPLATE = '''
         // Initialize map centered on Russia
         const map = L.map('map').setView([55.7558, 37.6173], 5);
         
-        // Add tile layer (dark theme)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        // Add tile layer (light theme)
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 19
@@ -224,12 +269,12 @@ HTML_TEMPLATE = '''
         const markers = [];
         const sidebar = document.getElementById('sidebar');
         
-        // Custom marker icon
+        // Custom marker icon with modern design
         const concertIcon = L.divIcon({
             className: 'custom-marker',
-            html: '<div style="background-color: #e94560; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.5);"></div>',
-            iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            html: '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); width: 24px; height: 24px; border-radius: 50%; border: 3px solid white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: transform 0.2s;"></div>',
+            iconSize: [24, 24],
+            iconAnchor: [12, 12]
         });
         
         function loadConcerts() {
@@ -252,8 +297,15 @@ HTML_TEMPLATE = '''
                         cityConcerts[concert.city].push(concert);
                     });
                     
+                    // Sort cities by first date
+                    const sortedCities = Object.keys(cityConcerts).sort((a, b) => {
+                        const dateA = cityConcerts[a][0].date.split('.').reverse().join('');
+                        const dateB = cityConcerts[b][0].date.split('.').reverse().join('');
+                        return dateA.localeCompare(dateB);
+                    });
+                    
                     // Add markers and sidebar items
-                    Object.keys(cityConcerts).forEach(city => {
+                    sortedCities.forEach(city => {
                         const cityData = cityConcerts[city];
                         const firstConcert = cityData[0];
                         
@@ -263,7 +315,7 @@ HTML_TEMPLATE = '''
                         
                         // Create popup with all dates for this city
                         let popupContent = '<div class="marker-popup">';
-                        popupContent += `<strong>${city}</strong><br>`;
+                        popupContent += `<strong>📍 ${city}</strong>`;
                         cityData.forEach(c => {
                             popupContent += `<div class="popup-date">${c.date}</div>`;
                         });
@@ -277,10 +329,13 @@ HTML_TEMPLATE = '''
                         item.className = 'concert-item';
                         item.innerHTML = `
                             <div class="concert-date">${cityData.map(c => c.date).join(', ')}</div>
-                            <div class="concert-city">📍 ${city}</div>
+                            <div class="concert-city">${city}</div>
                         `;
                         item.addEventListener('click', () => {
-                            map.setView([firstConcert.lat, firstConcert.lng], 10);
+                            map.setView([firstConcert.lat, firstConcert.lng], 10, {
+                                animate: true,
+                                duration: 0.5
+                            });
                             marker.openPopup();
                         });
                         sidebar.appendChild(item);
