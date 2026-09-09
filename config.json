@@ -1,0 +1,21 @@
+{
+    "carto": {
+        "api_key": "YOUR_CARTO_API_KEY_HERE",
+        "username": "YOUR_CARTO_USERNAME"
+    },
+    "cache": {
+        "enabled": true,
+        "file_path": ".cache/concerts_cache.json",
+        "ttl_hours": 24
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "logs/app.log",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    },
+    "app": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "debug": false
+    }
+}

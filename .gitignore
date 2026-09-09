@@ -1,1 +1,11 @@
-(empty)
+```
+# Cache and temporary data
+.cache/
+__pycache__/
+
+# Logs
+*.log
+
+# Environment files
+.env*
+```
