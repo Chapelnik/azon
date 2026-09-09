@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Web application that parses concerts from https://www.az0n.ru/main/live/
-and displays them on a map with dates.
+and displays them on a map with dates.1
 """
 
 import re
