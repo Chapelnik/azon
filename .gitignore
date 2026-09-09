@@ -1,1 +1,9 @@
-Nothing should be ignored in this case. The changes only include Python test files (.py) which are source code files that should be tracked in version control. No build artifacts, dependencies, or temporary files are present in the change list.
+```
+# Container/distribution files
+Containerfile
+Dockerfile
+*.dockerignore
+
+# Documentation
+README_PODMAN.md
+```
