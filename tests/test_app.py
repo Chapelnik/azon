@@ -97,55 +97,66 @@ class TestConcertScraper:
         assert scraper.parse_concerts('') == []
         assert scraper.parse_concerts(None) == []
     
-    def test_parse_concerts_basic(self, scraper):
-        """Test basic concert parsing"""
+    def test_parse_concerts_basic_static(self, scraper):
+        """Test basic concert parsing with static future date"""
+        # Use a date far in the future to always be valid
         html = '''
         <html>
             <h3 class="show">
-                <a class="image_link">15.12.2025 — Москва, концерт</a>
+                <a class="image_link">15.12.2099 — Москва, концерт</a>
             </h3>
         </html>
         '''
         concerts = scraper.parse_concerts(html)
         assert len(concerts) == 1
-        assert concerts[0]['date'] == '15.12.2025'
+        assert concerts[0]['date'] == '15.12.2099'
         assert concerts[0]['city'] == 'Москва'
     
-    def test_parse_concerts_duplicates(self, scraper):
-        """Test that duplicates are removed"""
+    def test_parse_concerts_duplicates_static(self, scraper):
+        """Test that duplicates are removed with static future date"""
         html = '''
         <html>
             <h3 class="show">
-                <a class="image_link">15.12.2025 — Москва, концерт</a>
+                <a class="image_link">15.12.2099 — Москва, концерт</a>
             </h3>
-            <a class="olink image_link">15.12.2025 — Москва, дубликат</a>
+            <a class="olink image_link">15.12.2099 — Москва, дубликат</a>
         </html>
         '''
         concerts = scraper.parse_concerts(html)
         assert len(concerts) == 1
     
-    @patch('scraper.requests.Session')
-    def test_fetch_page_success(self, mock_session, scraper):
+    def test_fetch_page_success(self):
         """Test successful page fetch"""
+        from unittest.mock import Mock, patch
+        import requests
+        
+        # Create a mock session
+        mock_session = Mock()
         mock_response = Mock()
         mock_response.text = '<html>content</html>'
         mock_response.status_code = 200
         mock_response.raise_for_status = Mock()
+        mock_session.get.return_value = mock_response
         
-        session_instance = Mock()
-        session_instance.get.return_value = mock_response
-        mock_session.return_value = session_instance
+        # Create scraper and replace session with mock
+        scraper = ConcertScraper(timeout=5, max_retries=1)
+        scraper.session = mock_session
         
         result = scraper.fetch_page()
         assert result == '<html>content</html>'
     
-    @patch('scraper.requests.Session')
-    def test_fetch_page_failure(self, mock_session, scraper):
+    def test_fetch_page_failure(self):
         """Test failed page fetch"""
+        from unittest.mock import Mock
         import requests
-        session_instance = Mock()
-        session_instance.get.side_effect = requests.RequestException("Network error")
-        mock_session.return_value = session_instance
+        
+        # Create a mock session that raises exception
+        mock_session = Mock()
+        mock_session.get.side_effect = requests.RequestException("Network error")
+        
+        # Create scraper and replace session with mock
+        scraper = ConcertScraper(timeout=5, max_retries=1)
+        scraper.session = mock_session
         
         result = scraper.fetch_page()
         assert result is None
